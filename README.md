@@ -55,6 +55,8 @@ This prevents the need to keep switching, or programatically accessing the right
 
 This means all of your routes, models, etc will run on the active tenant database (unless explicitly stated via ```::connection('name')```)
 
+## Lifecycle
+
 This is how things work during a HTTP request:
 
 - Tenantable copies the name of the default database connection into the ```tenantable.database.default``` config area.
