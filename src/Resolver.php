@@ -84,6 +84,14 @@ class Resolver
         }
     }
 
+    public function purgeTenantConnection(){
+        $this->app['db']->setDefaultConnection(config('tenantable.database.default'));
+    }
+
+    public function reconnectTenantConnection(){
+        $this->app['db']->setDefaultConnection('tenant');
+    }
+
     private function resolveByRequest(){
         $this->request = $this->app->make(Request::class);
         $domain = $this->request->getHost();

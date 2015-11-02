@@ -17,7 +17,7 @@ composer require leemason/tenantable
 Then hit composer update
 
 After updating composer, add the ServiceProvider to the providers array in config/app.php.
-You should ideally have this inserted into the array just after the Illuminate\Database\DatabaseServiceProvider to ensure its boot methods is called after the database is available but before any other Service Providers are booted.
+You should ideally have this inserted into the array just after the ```Illuminate\Database\DatabaseServiceProvider::class``` to ensure its boot methods is called after the database is available but before any other Service Providers are booted.
 
 ### Laravel 5.1:
 
@@ -27,9 +27,9 @@ LeeMason\Tenantable\TenantableServiceProvider::class,
 
 And that's it!
 
-## Compatability
+## Compatibility
 
-The Tenantable package has been developed with Laravel 5.1, i see no reason why it wouldnt work with 5.0 but it is only tested for 5.1 and above.
+The Tenantable package has been developed with Laravel 5.1, i see no reason why it wouldn't work with 5.0 but it is only tested for 5.1 and above.
 
 ## Introduction
 
@@ -49,3 +49,54 @@ This is how things work during a HTTP request:
 - Then the default database connection is changed to 'tenant' and the connection purged (disconnected/reconnected).
 - The ```app.url``` config is set the tenants domain.
 - If a match isn't found in either tables a TenantNotResolved event is fired and no config changes happen.
+
+This is how it works during an artisan console request:
+
+- Tenantable copies the name of the default database connection into the ```tenantable.database.default``` config area.
+- Tenantable registers a console option of ```--tenant``` where you can supply the id,uuid,domain or *,all to run for all tenants.
+- Tenantable checks to see if the tenant option is provided, if it isn't no tenant is resolved. The command runs normally.
+- If a match is found it resolves the tenant (settings the tenant connection details) before excecuting the command.
+- If you provide ```--tenant``` with either a ```*``` or the string ```all``` Tenantable will run the command foreach tenant found in the database, setting the active tenant before running each time.
+
+### Notes on using Artisan::call();
+
+Using the ```Artisan``` Facade to run a command provides no access to alter the applications active tenant before running (unlike console artisan access).
+Because of this the currently active tenant will be used.
+To run the command foreach tenant you will need to fetch all tenants using ```Tenant::all()``` and run the ```Artisan::call()``` method inside a foreach after setting the active tenant like so:
+
+```php
+//fetch the resolver class either via the app() function or by injecting
+$resolver = app('LeeMason\Tenantable\Resolver');
+
+//store the current tenant
+$resolvedTenant = $resolver->getActiveTenant();
+
+//fetch all tenants and loop / call command for each
+$tenants = \LeeMason\Tenantable\Tenant::all();
+foreach($tenants as $tenant){
+    $resolver->setActiveTenant($tenant);
+    $result = \Artisan::call('commandname', ['array' => 'of', 'the' => 'arguments']);
+}
+
+//restore the correct tenant
+$resolver->setActiveTenant($resolvedTenant);
+```
+
+If you need to run the Artisan facade on the original default connection (ie not the tenant connection) simply call the ```Resolver::purgeTenantConnection()``` function first:
+
+```php
+//fetch the resolver class either via the app() function or by injecting
+$resolver = app('LeeMason\Tenantable\Resolver');
+
+//store the current tenant
+$resolvedTenant = $resolver->getActiveTenant();
+
+//purge and set the default connection
+$resolver->purgeTenantConnection();
+
+//call the command
+$result = \Artisan::call('commandname', ['array' => 'of', 'the' => 'arguments']);
+
+//restore the tenant connection
+$resolver->reconnectTenantConnection();
+```
