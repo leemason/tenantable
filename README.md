@@ -77,7 +77,9 @@ This is how it works during an artisan console request:
 ## The Resolver Class
 
 The ```\LeeMason\Tenantable\Resolver``` class responsible for resolving and managing the active tenant during http and console access.
+
 The ```TenantableServiceProvider``` registers this class as a singleton for use anywhere in your app via method injection, or by using the ```app('LeeMason\Tenantable\Resolver')``` helper function.
+
 This class provides you with methods to access or alter the active tenant:
 
 ```php
@@ -103,9 +105,13 @@ $resolver->reconnectTenantConnection();
 ## The Tenant Model
 
 The ```\LeeMason\Tenantable\Tenant``` class is a very simple Eloquent model with some database connection attributes, and a meta attribute which is cast to a ```Illuminate\Support\Collection``` when accessed.
+
 Each attribute (except id,uuid,domain,driver,prefix,meta, and timestamps) are encrypted for security and are decrypted on access, encrypted on save automatically.
+
 Each model instance is assigned a ```uuid``` upon creation, this attribute cannot be set/changed as its a unique id generated for this tenant.
+
 The reason for the uuid is to allow you to use an identifyer for the tenant elsewhere without exposing the tenants id or domain (for example in the filesystem, where you may store tenant specific files in sub folders).
+
 The model can be used in any way other Eloquent models are to create/read/update/delete:
 
 ```php
@@ -135,22 +141,27 @@ The Tenantable packages produces a few events which can be consumed in your appl
 ```\LeeMason\Tenantable\Events\SetActiveTenantEvent(\LeeMason\Tenantable\Tenant $tenant)```
 
 This event is fired when a tenant is set as the active tenant and has a public ```$tenant``` property containing the ```\LeeMason\Tenantable\Tenant``` instance.
-Note this may not be as a result of the resolver.
+
+*Note* this may not be as a result of the resolver.
 
 ```\LeeMason\Tenantable\Events\TenantResolvedEvent(\LeeMason\Tenantable\Tenant $tenant)```
 
 This event is fired when a tenant is resolved by the resolver and has a public ```$tenant``` property containing the ```\LeeMason\Tenantable\Tenant``` instance.
-Note this is only fired once per request as the resolver is responsible for this event.
+
+*Note* this is only fired once per request as the resolver is responsible for this event.
 
 ```\LeeMason\Tenantable\Events\TenantNotResolvedEvent(\LeeMason\Tenantable\Resolver $resolver)```
 
 This event is fired when by the resolver when it cannot resolve a tenant and has a public ```$resolver``` property containing the ```\LeeMason\Tenantable\Resolver``` instance.
-Note this is only fired once per request as the resolver is responsible for this event.
 
-### Notes on using Artisan::call();
+*Note* this is only fired once per request as the resolver is responsible for this event.
+
+#### Notes on using Artisan::call();
 
 Using the ```Artisan``` Facade to run a command provides no access to alter the applications active tenant before running (unlike console artisan access).
+
 Because of this the currently active tenant will be used.
+
 To run the command foreach tenant you will need to fetch all tenants using ```Tenant::all()``` and run the ```Artisan::call()``` method inside a foreach after setting the active tenant like so:
 
 ```php
