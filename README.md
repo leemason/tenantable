@@ -202,3 +202,8 @@ $result = \Artisan::call('commandname', ['array' => 'of', 'the' => 'arguments'])
 //restore the tenant connection as the default
 $resolver->reconnectTenantConnection();
 ```
+
+## The Future
+
+- Add tests
+- Add meta items to laravel config
