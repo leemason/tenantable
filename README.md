@@ -142,19 +142,19 @@ The Tenantable packages produces a few events which can be consumed in your appl
 
 This event is fired when a tenant is set as the active tenant and has a public ```$tenant``` property containing the ```\LeeMason\Tenantable\Tenant``` instance.
 
-*Note* this may not be as a result of the resolver.
+**Note** this may not be as a result of the resolver but is also fired when a tenant is set to active programatically.
 
 ```\LeeMason\Tenantable\Events\TenantResolvedEvent(\LeeMason\Tenantable\Tenant $tenant)```
 
 This event is fired when a tenant is resolved by the resolver and has a public ```$tenant``` property containing the ```\LeeMason\Tenantable\Tenant``` instance.
 
-*Note* this is only fired once per request as the resolver is responsible for this event.
+**Note** this is only fired once per request as the resolver is responsible for this event.
 
 ```\LeeMason\Tenantable\Events\TenantNotResolvedEvent(\LeeMason\Tenantable\Resolver $resolver)```
 
 This event is fired when by the resolver when it cannot resolve a tenant and has a public ```$resolver``` property containing the ```\LeeMason\Tenantable\Resolver``` instance.
 
-*Note* this is only fired once per request as the resolver is responsible for this event.
+**Note** this is only fired once per request as the resolver is responsible for this event.
 
 #### Notes on using Artisan::call();
 
