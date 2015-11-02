@@ -25,7 +25,21 @@ You should ideally have this inserted into the array just after the ```Illuminat
 LeeMason\Tenantable\TenantableServiceProvider::class,
 ```
 
-And that's it!
+Then in your workflow create tenants the Eloquent way:
+
+```php
+$tenant = new \LeeMason\Tenantable\Tenant();
+$tenant->domain = 'http://domain.com';
+$tenant->driver = 'mysql';
+$tenant->host = 'localhost';
+$tenant->database = 'domain_com';
+$tenant->username = 'root';
+$tenant->password = '';
+$tenant->prefix = 'prefix';
+$tenant->save();
+```
+
+And that's it! Whenever your app is visited via http://domain.com the default database connection will be set with the above details.
 
 ## Compatibility
 
@@ -37,7 +51,9 @@ The package simply resolves the correct connection details via the domain access
 
 Once resolved it sets the default database connection with the saved values.
 
-This prevents the need to keep switching, or programatically accessing the right connection depending on the tenant being viewed.
+This prevents the need to keep switching, or programatically accessing the right connection depending on the tenant being accessed.
+
+This means all of your routes, models, etc will run on the active tenant database (unless explicitly stated via ```::connection('name')```)
 
 This is how things work during a HTTP request:
 
@@ -57,6 +73,79 @@ This is how it works during an artisan console request:
 - Tenantable checks to see if the tenant option is provided, if it isn't no tenant is resolved. The command runs normally.
 - If a match is found it resolves the tenant (settings the tenant connection details) before excecuting the command.
 - If you provide ```--tenant``` with either a ```*``` or the string ```all``` Tenantable will run the command foreach tenant found in the database, setting the active tenant before running each time.
+
+## The Resolver Class
+
+The ```\LeeMason\Tenantable\Resolver``` class responsible for resolving and managing the active tenant during http and console access.
+The ```TenantableServiceProvider``` registers this class as a singleton for use anywhere in your app via method injection, or by using the ```app('LeeMason\Tenantable\Resolver')``` helper function.
+This class provides you with methods to access or alter the active tenant:
+
+```php
+//fetch the resolver class either via the app() function or by injecting
+$resolver = app('LeeMason\Tenantable\Resolver');
+
+//check if a tenant was resolved
+$resolver->isResolved(); // returns bool
+
+//get the active tenant model
+$tenant = $resolver->getActiveTenant(); // returns instance of \LeeMason\Tenantable\Tenant or null
+
+//set the active tenant
+$resolver->setActiveTenant(\LeeMason\Tenantable\Tenant $tenant); // fires a \LeeMason\Tenantable\Events\SetActiveTenantEvent event
+
+//purge tenant connection
+$resolver->purgeTenantConnection();
+
+//reconnect tenant connection
+$resolver->reconnectTenantConnection();
+```
+
+## The Tenant Model
+
+The ```\LeeMason\Tenantable\Tenant``` class is a very simple Eloquent model with some database connection attributes, and a meta attribute which is cast to a ```Illuminate\Support\Collection``` when accessed.
+Each attribute (except id,uuid,domain,driver,prefix,meta, and timestamps) are encrypted for security and are decrypted on access, encrypted on save automatically.
+Each model instance is assigned a ```uuid``` upon creation, this attribute cannot be set/changed as its a unique id generated for this tenant.
+The reason for the uuid is to allow you to use an identifyer for the tenant elsewhere without exposing the tenants id or domain (for example in the filesystem, where you may store tenant specific files in sub folders).
+The model can be used in any way other Eloquent models are to create/read/update/delete:
+
+```php
+//create by mass assignment
+\LeeMason\Tenantable\Tenant::create([
+    'domain' => 'http://...'
+    ....
+]);
+
+//call then save
+$tenant = \LeeMason\Tenantable\Tenant();
+$tenant->domain = 'http://...';
+...
+$tenant->save();
+
+//fetch all tenants
+$tenant = \LeeMason\Tenantable\Tenant::all();
+
+//fetch by domain
+$tenant = \LeeMason\Tenantable\Tenant::where('domain', 'http://..')->first();
+```
+
+## Events
+
+The Tenantable packages produces a few events which can be consumed in your application
+
+```\LeeMason\Tenantable\Events\SetActiveTenantEvent(\LeeMason\Tenantable\Tenant $tenant)```
+
+This event is fired when a tenant is set as the active tenant and has a public ```$tenant``` property containing the ```\LeeMason\Tenantable\Tenant``` instance.
+Note this may not be as a result of the resolver.
+
+```\LeeMason\Tenantable\Events\TenantResolvedEvent(\LeeMason\Tenantable\Tenant $tenant)```
+
+This event is fired when a tenant is resolved by the resolver and has a public ```$tenant``` property containing the ```\LeeMason\Tenantable\Tenant``` instance.
+Note this is only fired once per request as the resolver is responsible for this event.
+
+```\LeeMason\Tenantable\Events\TenantNotResolvedEvent(\LeeMason\Tenantable\Resolver $resolver)```
+
+This event is fired when by the resolver when it cannot resolve a tenant and has a public ```$resolver``` property containing the ```\LeeMason\Tenantable\Resolver``` instance.
+Note this is only fired once per request as the resolver is responsible for this event.
 
 ### Notes on using Artisan::call();
 
@@ -91,12 +180,12 @@ $resolver = app('LeeMason\Tenantable\Resolver');
 //store the current tenant
 $resolvedTenant = $resolver->getActiveTenant();
 
-//purge and set the default connection
+//purge the tenant from the default connection
 $resolver->purgeTenantConnection();
 
 //call the command
 $result = \Artisan::call('commandname', ['array' => 'of', 'the' => 'arguments']);
 
-//restore the tenant connection
+//restore the tenant connection as the default
 $resolver->reconnectTenantConnection();
 ```

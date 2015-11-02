@@ -75,7 +75,9 @@ class Resolver
     public function resolveTenant(){
 
         //save default db connection value
-        config()->set('tenantable.database.default', config('database.default'));
+        if(config('tenantable.database.default', null) == null) {
+            config()->set('tenantable.database.default', config('database.default'));
+        }
 
         if($this->app->runningInConsole()){
             $this->resolveByConsole();
