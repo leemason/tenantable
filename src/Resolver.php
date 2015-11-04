@@ -79,6 +79,14 @@ class Resolver
             config()->set('tenantable.database.default', config('database.default'));
         }
 
+        //register artisan events
+        $this->registerTenantConsoleArgument();
+
+        $this->registerConsoleStartEvent();
+
+        $this->registerConsoleTerminateEvent();
+
+        //resolve by request type
         if($this->app->runningInConsole()){
             $this->resolveByConsole();
         }else{
@@ -123,12 +131,6 @@ class Resolver
     }
 
     private function resolveByConsole(){
-
-        $this->registerTenantConsoleArgument();
-
-        $this->registerConsoleStartEvent();
-
-        $this->registerConsoleTerminateEvent();
 
         $domain = (new ArgvInput())->getParameterOption('--tenant', null);
 
