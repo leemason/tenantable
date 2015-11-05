@@ -1,0 +1,254 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Tenantable by leemason</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Tenantable</h1>
+        <p>Laravel Multi tenancy</p>
+
+        <p class="view"><a href="https://github.com/leemason/tenantable">View the Project on GitHub <small>leemason/tenantable</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/leemason/tenantable/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/leemason/tenantable/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/leemason/tenantable">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>
+<a id="tenantable" class="anchor" href="#tenantable" aria-hidden="true"><span class="octicon octicon-link"></span></a>Tenantable</h2>
+
+<p><a href="http://choosealicense.com/licenses/mit/"><img src="https://poser.pugx.org/leemason/tenantable/license.png" alt="Packagist License"></a>
+<a href="https://packagist.org/packages/leemason/tenantable"><img src="https://poser.pugx.org/leemason/tenantable/version.png" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/leemason/tenantable"><img src="https://poser.pugx.org/leemason/tenantable/d/total.png" alt="Total Downloads"></a>
+<a href="https://travis-ci.org/leemason/tenantable"><img src="https://travis-ci.org/leemason/tenantable.svg?branch=master" alt="Build Status"></a></p>
+
+<p>The Laravel Tenantable package is designed to enable multi-tenancy based database connections on the fly without having to access the database <code>::connection('name')</code> in every database call.</p>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Just place require new package for your laravel installation via composer.json</p>
+
+<pre><code>composer require leemason/tenantable
+</code></pre>
+
+<p>Then hit composer update</p>
+
+<p>After updating composer, add the ServiceProvider to the providers array in config/app.php.
+You should ideally have this inserted into the array just after the <code>Illuminate\Database\DatabaseServiceProvider::class</code> to ensure its boot methods is called after the database is available but before any other Service Providers are booted.</p>
+
+<h3>
+<a id="laravel-51" class="anchor" href="#laravel-51" aria-hidden="true"><span class="octicon octicon-link"></span></a>Laravel 5.1:</h3>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c1">LeeMason\Tenantable\</span><span class="pl-c1">TenantableServiceProvider</span><span class="pl-k">::</span><span class="pl-c1">class</span>,</span></pre></div>
+
+<p>Then in your workflow create tenants the Eloquent way:</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$tenant</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">\LeeMason\Tenantable\</span><span class="pl-c1">Tenant</span>();</span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span><span class="pl-k">-&gt;</span><span class="pl-smi">domain</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>http://domain.com<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span><span class="pl-k">-&gt;</span><span class="pl-smi">driver</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>mysql<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span><span class="pl-k">-&gt;</span><span class="pl-smi">host</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>localhost<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span><span class="pl-k">-&gt;</span><span class="pl-smi">database</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>domain_com<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span><span class="pl-k">-&gt;</span><span class="pl-smi">username</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>root<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span><span class="pl-k">-&gt;</span><span class="pl-smi">password</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span><span class="pl-pds">'</span></span>;</span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span><span class="pl-k">-&gt;</span><span class="pl-smi">prefix</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>prefix<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span><span class="pl-k">-&gt;</span>save();</span></pre></div>
+
+<p>And that's it! Whenever your app is visited via <a href="http://domain.com">http://domain.com</a> the default database connection will be set with the above details.</p>
+
+<h2>
+<a id="compatibility" class="anchor" href="#compatibility" aria-hidden="true"><span class="octicon octicon-link"></span></a>Compatibility</h2>
+
+<p>The Tenantable package has been developed with Laravel 5.1, i see no reason why it wouldn't work with 5.0 but it is only tested for 5.1 and above.</p>
+
+<h2>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>The package simply resolves the correct connection details via the domain accessed via connection details saved in the database.</p>
+
+<p>Once resolved it sets the default database connection with the saved values.</p>
+
+<p>This prevents the need to keep switching, or programatically accessing the right connection depending on the tenant being accessed.</p>
+
+<p>This means all of your routes, models, etc will run on the active tenant database (unless explicitly stated via <code>::connection('name')</code>)</p>
+
+<h2>
+<a id="lifecycle" class="anchor" href="#lifecycle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Lifecycle</h2>
+
+<p>This is how things work during a HTTP request:</p>
+
+<ul>
+<li>Tenantable copies the name of the default database connection into the <code>tenantable.database.default</code> config area.</li>
+<li>Tenantable gets the host string via the <code>Http\Request::getHost()</code> method.</li>
+<li>Tenantable looks for a tenant in the database that match this host.</li>
+<li>If one isn't found, Tenantable looks in the Domains table to find a match (and if found uses eloquent relationships to return the Tenant model.</li>
+<li>When a match is found, the match is saved as the active tenant, and the database details for the tenant are placed in the <code>database.connections.tenant</code> config.</li>
+<li>Then the default database connection is changed to 'tenant' and the connection purged (disconnected/reconnected).</li>
+<li>The <code>app.url</code> config is set the tenants domain.</li>
+<li>If a match isn't found in either tables a TenantNotResolved event is fired and no config changes happen.</li>
+</ul>
+
+<p>This is how it works during an artisan console request:</p>
+
+<ul>
+<li>Tenantable copies the name of the default database connection into the <code>tenantable.database.default</code> config area.</li>
+<li>Tenantable registers a console option of <code>--tenant</code> where you can supply the id,uuid,domain or *,all to run for all tenants.</li>
+<li>Tenantable checks to see if the tenant option is provided, if it isn't no tenant is resolved. The command runs normally.</li>
+<li>If a match is found it resolves the tenant (settings the tenant connection details) before excecuting the command.</li>
+<li>If you provide <code>--tenant</code> with either a <code>*</code> or the string <code>all</code> Tenantable will run the command foreach tenant found in the database, setting the active tenant before running each time.</li>
+</ul>
+
+<h2>
+<a id="the-resolver-class" class="anchor" href="#the-resolver-class" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Resolver Class</h2>
+
+<p>The <code>\LeeMason\Tenantable\Resolver</code> class responsible for resolving and managing the active tenant during http and console access.</p>
+
+<p>The <code>TenantableServiceProvider</code> registers this class as a singleton for use anywhere in your app via method injection, or by using the <code>app('LeeMason\Tenantable\Resolver')</code> helper function.</p>
+
+<p>This class provides you with methods to access or alter the active tenant:</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c">//fetch the resolver class either via the app() function or by injecting</span></span>
+<span class="pl-s1"><span class="pl-smi">$resolver</span> <span class="pl-k">=</span> app(<span class="pl-s"><span class="pl-pds">'</span>LeeMason\Tenantable\Resolver<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//check if a tenant was resolved</span></span>
+<span class="pl-s1"><span class="pl-smi">$resolver</span><span class="pl-k">-&gt;</span>isResolved(); <span class="pl-c">// returns bool</span></span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//get the active tenant model</span></span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span> <span class="pl-k">=</span> <span class="pl-smi">$resolver</span><span class="pl-k">-&gt;</span>getActiveTenant(); <span class="pl-c">// returns instance of \LeeMason\Tenantable\Tenant or null</span></span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//set the active tenant</span></span>
+<span class="pl-s1"><span class="pl-smi">$resolver</span><span class="pl-k">-&gt;</span>setActiveTenant(<span class="pl-c1">\LeeMason\Tenantable\</span><span class="pl-c1">Tenant</span> <span class="pl-smi">$tenant</span>); <span class="pl-c">// fires a \LeeMason\Tenantable\Events\SetActiveTenantEvent event</span></span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//purge tenant connection</span></span>
+<span class="pl-s1"><span class="pl-smi">$resolver</span><span class="pl-k">-&gt;</span>purgeTenantConnection();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//reconnect tenant connection</span></span>
+<span class="pl-s1"><span class="pl-smi">$resolver</span><span class="pl-k">-&gt;</span>reconnectTenantConnection();</span></pre></div>
+
+<h2>
+<a id="the-tenant-model" class="anchor" href="#the-tenant-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Tenant Model</h2>
+
+<p>The <code>\LeeMason\Tenantable\Tenant</code> class is a very simple Eloquent model with some database connection attributes, and a meta attribute which is cast to a <code>Illuminate\Support\Collection</code> when accessed.</p>
+
+<p>Each attribute (except id,uuid,domain,driver,prefix,meta, and timestamps) are encrypted for security and are decrypted on access, encrypted on save automatically.</p>
+
+<p>Each model instance is assigned a <code>uuid</code> upon creation, this attribute cannot be set/changed as its a unique id generated for this tenant.</p>
+
+<p>The reason for the uuid is to allow you to use an identifyer for the tenant elsewhere without exposing the tenants id or domain (for example in the filesystem, where you may store tenant specific files in sub folders).</p>
+
+<p>The model can be used in any way other Eloquent models are to create/read/update/delete:</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c">//create by mass assignment</span></span>
+<span class="pl-s1"><span class="pl-c1">\LeeMason\Tenantable\</span><span class="pl-c1">Tenant</span><span class="pl-k">::</span>create([</span>
+<span class="pl-s1">    <span class="pl-s"><span class="pl-pds">'</span>domain<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>http://...<span class="pl-pds">'</span></span></span>
+<span class="pl-s1">    <span class="pl-k">....</span></span>
+<span class="pl-s1">]);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//call then save</span></span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span> <span class="pl-k">=</span> <span class="pl-c1">\LeeMason\Tenantable\</span>Tenant();</span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span><span class="pl-k">-&gt;</span><span class="pl-smi">domain</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>http://...<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s1"><span class="pl-k">...</span></span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span><span class="pl-k">-&gt;</span>save();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//fetch all tenants</span></span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span> <span class="pl-k">=</span> <span class="pl-c1">\LeeMason\Tenantable\</span><span class="pl-c1">Tenant</span><span class="pl-k">::</span>all();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//fetch by domain</span></span>
+<span class="pl-s1"><span class="pl-smi">$tenant</span> <span class="pl-k">=</span> <span class="pl-c1">\LeeMason\Tenantable\</span><span class="pl-c1">Tenant</span><span class="pl-k">::</span>where(<span class="pl-s"><span class="pl-pds">'</span>domain<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>http://..<span class="pl-pds">'</span></span>)<span class="pl-k">-&gt;</span>first();</span></pre></div>
+
+<h2>
+<a id="events" class="anchor" href="#events" aria-hidden="true"><span class="octicon octicon-link"></span></a>Events</h2>
+
+<p>The Tenantable packages produces a few events which can be consumed in your application</p>
+
+<p><code>\LeeMason\Tenantable\Events\SetActiveTenantEvent(\LeeMason\Tenantable\Tenant $tenant)</code></p>
+
+<p>This event is fired when a tenant is set as the active tenant and has a public <code>$tenant</code> property containing the <code>\LeeMason\Tenantable\Tenant</code> instance.</p>
+
+<p><strong>Note</strong> this may not be as a result of the resolver but is also fired when a tenant is set to active programatically.</p>
+
+<p><code>\LeeMason\Tenantable\Events\TenantResolvedEvent(\LeeMason\Tenantable\Tenant $tenant)</code></p>
+
+<p>This event is fired when a tenant is resolved by the resolver and has a public <code>$tenant</code> property containing the <code>\LeeMason\Tenantable\Tenant</code> instance.</p>
+
+<p><strong>Note</strong> this is only fired once per request as the resolver is responsible for this event.</p>
+
+<p><code>\LeeMason\Tenantable\Events\TenantNotResolvedEvent(\LeeMason\Tenantable\Resolver $resolver)</code></p>
+
+<p>This event is fired when by the resolver when it cannot resolve a tenant and has a public <code>$resolver</code> property containing the <code>\LeeMason\Tenantable\Resolver</code> instance.</p>
+
+<p><strong>Note</strong> this is only fired once per request as the resolver is responsible for this event.</p>
+
+<h4>
+<a id="notes-on-using-artisancall" class="anchor" href="#notes-on-using-artisancall" aria-hidden="true"><span class="octicon octicon-link"></span></a>Notes on using Artisan::call();</h4>
+
+<p>Using the <code>Artisan</code> Facade to run a command provides no access to alter the applications active tenant before running (unlike console artisan access).</p>
+
+<p>Because of this the currently active tenant will be used.</p>
+
+<p>To run the command foreach tenant you will need to fetch all tenants using <code>Tenant::all()</code> and run the <code>Artisan::call()</code> method inside a foreach after setting the active tenant like so:</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c">//fetch the resolver class either via the app() function or by injecting</span></span>
+<span class="pl-s1"><span class="pl-smi">$resolver</span> <span class="pl-k">=</span> app(<span class="pl-s"><span class="pl-pds">'</span>LeeMason\Tenantable\Resolver<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//store the current tenant</span></span>
+<span class="pl-s1"><span class="pl-smi">$resolvedTenant</span> <span class="pl-k">=</span> <span class="pl-smi">$resolver</span><span class="pl-k">-&gt;</span>getActiveTenant();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//fetch all tenants and loop / call command for each</span></span>
+<span class="pl-s1"><span class="pl-smi">$tenants</span> <span class="pl-k">=</span> <span class="pl-c1">\LeeMason\Tenantable\</span><span class="pl-c1">Tenant</span><span class="pl-k">::</span>all();</span>
+<span class="pl-s1"><span class="pl-k">foreach</span>(<span class="pl-smi">$tenants</span> <span class="pl-k">as</span> <span class="pl-smi">$tenant</span>){</span>
+<span class="pl-s1">    <span class="pl-smi">$resolver</span><span class="pl-k">-&gt;</span>setActiveTenant(<span class="pl-smi">$tenant</span>);</span>
+<span class="pl-s1">    <span class="pl-smi">$result</span> <span class="pl-k">=</span> <span class="pl-c1">\</span><span class="pl-c1">Artisan</span><span class="pl-k">::</span>call(<span class="pl-s"><span class="pl-pds">'</span>commandname<span class="pl-pds">'</span></span>, [<span class="pl-s"><span class="pl-pds">'</span>array<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>of<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>the<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>arguments<span class="pl-pds">'</span></span>]);</span>
+<span class="pl-s1">}</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//restore the correct tenant</span></span>
+<span class="pl-s1"><span class="pl-smi">$resolver</span><span class="pl-k">-&gt;</span>setActiveTenant(<span class="pl-smi">$resolvedTenant</span>);</span></pre></div>
+
+<p>If you need to run the Artisan facade on the original default connection (ie not the tenant connection) simply call the <code>Resolver::purgeTenantConnection()</code> function first:</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-c">//fetch the resolver class either via the app() function or by injecting</span></span>
+<span class="pl-s1"><span class="pl-smi">$resolver</span> <span class="pl-k">=</span> app(<span class="pl-s"><span class="pl-pds">'</span>LeeMason\Tenantable\Resolver<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//store the current tenant</span></span>
+<span class="pl-s1"><span class="pl-smi">$resolvedTenant</span> <span class="pl-k">=</span> <span class="pl-smi">$resolver</span><span class="pl-k">-&gt;</span>getActiveTenant();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//purge the tenant from the default connection</span></span>
+<span class="pl-s1"><span class="pl-smi">$resolver</span><span class="pl-k">-&gt;</span>purgeTenantConnection();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//call the command</span></span>
+<span class="pl-s1"><span class="pl-smi">$result</span> <span class="pl-k">=</span> <span class="pl-c1">\</span><span class="pl-c1">Artisan</span><span class="pl-k">::</span>call(<span class="pl-s"><span class="pl-pds">'</span>commandname<span class="pl-pds">'</span></span>, [<span class="pl-s"><span class="pl-pds">'</span>array<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>of<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>the<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>arguments<span class="pl-pds">'</span></span>]);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">//restore the tenant connection as the default</span></span>
+<span class="pl-s1"><span class="pl-smi">$resolver</span><span class="pl-k">-&gt;</span>reconnectTenantConnection();</span></pre></div>
+
+<h2>
+<a id="the-future" class="anchor" href="#the-future" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Future</h2>
+
+<ul>
+<li>Add tests</li>
+<li>Add meta items to laravel config</li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/leemason">leemason</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
