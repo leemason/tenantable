@@ -14,7 +14,7 @@ Just place require new package for your laravel installation via composer.json
 composer require leemason/tenantable
 ```
 
-Then hit composer update
+Then hit composer dump-autoload
 
 After updating composer, add the ServiceProvider to the providers array in config/app.php.
 You should ideally have this inserted into the array just after the ```Illuminate\Database\DatabaseServiceProvider::class``` to ensure its boot methods is called after the database is available but before any other Service Providers are booted.
@@ -23,6 +23,11 @@ You should ideally have this inserted into the array just after the ```Illuminat
 
 ```php
 LeeMason\Tenantable\TenantableServiceProvider::class,
+```
+
+Run the migrations
+```php 
+artisan migrate --path /vendor/leemason/tenantable/migrations
 ```
 
 Then in your workflow create tenants the Eloquent way:
