@@ -34,7 +34,7 @@ Then in your workflow create tenants the Eloquent way:
 
 ```php
 $tenant = new \LeeMason\Tenantable\Tenant();
-$tenant->domain = 'http://domain.com';
+$tenant->domain = 'domain.com';
 $tenant->driver = 'mysql';
 $tenant->host = 'localhost';
 $tenant->database = 'domain_com';
