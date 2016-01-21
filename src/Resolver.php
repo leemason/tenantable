@@ -64,7 +64,13 @@ class Resolver
         config()->set('database.connections.tenant.database', $tenant->database);
         config()->set('database.connections.tenant.username', $tenant->username);
         config()->set('database.connections.tenant.password', $tenant->password);
-        config()->set('database.connections.tenant.prefix', $tenant->prefix.'_');
+        if(!empty($tenant->prefix)) {
+            $tenant->prefix .= '_';
+        }
+        config()->set('database.connections.tenant.prefix', $tenant->prefix);
+        if ($tenant->driver == 'mysql') {
+            config()->set('database.connections.tenant.strict', config('database.connections.mysql.strict'));
+        }
         config()->set('database.connections.tenant.charset', 'utf8');
         config()->set('database.connections.tenant.collation', 'utf8_unicode_ci');
 
