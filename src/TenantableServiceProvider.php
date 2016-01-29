@@ -25,7 +25,7 @@ class TenantableServiceProvider extends ServiceProvider
         //resolve tenant, catch PDOExceptions to prevent errors during migration
         try {
         	$resolver->resolveTenant();
-        } catch( PDOException $e ) { }
+        } catch( \PDOException $e ) { }
 
     }
 
