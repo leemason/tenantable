@@ -22,8 +22,10 @@ class TenantableServiceProvider extends ServiceProvider
 
     public function boot(Resolver $resolver){
 
-        //resolve tenant
-        $resolver->resolveTenant();
+        //resolve tenant, catch PDOExceptions to prevent errors during migration
+        try {
+        	$resolver->resolveTenant();
+        } catch( \PDOException $e ) { }
 
     }
 
