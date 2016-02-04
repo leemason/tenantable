@@ -22,6 +22,7 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Illuminate\Console\Application as Artisan;
+use Illuminate\Console\Events\ArtisanStarting;
 
 class Resolver
 {
@@ -190,11 +191,11 @@ class Resolver
 
     private function registerTenantConsoleArgument(){
         //register --tenant option for console
-        $this->app['events']->listen('artisan.start', function(Artisan $app){
-            $definition = $app->getDefinition();
+        $this->app['events']->listen(ArtisanStarting::class, function($event){
+            $definition = $event->artisan->getDefinition();
             $definition->addOption(new InputOption('--tenant', null, InputOption::VALUE_OPTIONAL, 'The tenant the command should be run for (id,uuid,domain).'));
-            $app->setDefinition($definition);
-            $app->setDispatcher($this->getConsolerDispatcher());
+            $event->artisan->setDefinition($definition);
+            $event->artisan->setDispatcher($this->getConsolerDispatcher());
         });
     }
 
